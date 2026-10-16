@@ -2,7 +2,7 @@ name: Actualizar mercados
 
 on:
   schedule:
-- cron: '7,37 * * * *'   # minutos 7 y 37 de cada hora
+    - cron: '7,37 * * * *'   # minutos 7 y 37 de cada hora
   workflow_dispatch:          # permite correrlo a mano desde la pestaña Actions
 
 permissions:
