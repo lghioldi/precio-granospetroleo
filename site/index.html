@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Mercados · Soja, maíz, trigo y petróleo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <header class="top">
+      <div>
+        <h1>Mercados</h1>
+        <p class="sub">Cotizaciones en dólares</p>
+      </div>
+      <div class="actions">
+        <button id="refreshBtn" class="btn primary" type="button">
+          <span class="spin" aria-hidden="true"></span>
+          <span id="refreshLabel">Actualizar ahora</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="alert" class="alert" role="status" aria-live="polite" hidden></div>
+
+    <section class="grid" id="grid" aria-label="Cotizaciones"></section>
+  </main>
+
+  <footer class="foot">Actualización automática de mercados</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
