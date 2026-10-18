@@ -1,21 +1,21 @@
 {
-  "updatedAt": "2026-10-18T19:33:47.651Z",
+  "updatedAt": "2026-10-18T21:45:52.183Z",
   "items": {
     "soja": {
       "price": 371.11,
-      "at": "2026-10-18T19:33:47.641Z",
+      "at": "2026-10-18T21:45:52.171Z",
       "trend": "up",
       "note": "Pizarra del 15/10/2026 · +0,54% vs. rueda anterior"
     },
     "maiz": {
       "price": 189.86,
-      "at": "2026-10-18T19:33:47.641Z",
+      "at": "2026-10-18T21:45:52.171Z",
       "trend": "up",
       "note": "Pizarra del 15/10/2026 · +0,17% vs. rueda anterior"
     },
     "trigo": {
       "price": 232.24,
-      "at": "2026-10-18T19:33:47.641Z",
+      "at": "2026-10-18T21:45:52.171Z",
       "trend": "up",
       "note": "Pizarra del 15/10/2026 · +1,29% vs. rueda anterior"
     },
