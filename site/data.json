@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-18T21:45:52.183Z",
+  "updatedAt": "2026-10-19T00:03:17.164Z",
   "items": {
     "soja": {
       "price": 371.11,
@@ -20,10 +20,10 @@
       "note": "Pizarra del 15/10/2026 · +1,29% vs. rueda anterior"
     },
     "petroleo": {
-      "price": 99,
-      "at": "2026-10-16T20:56:40.644Z",
-      "trend": "flat",
-      "note": "0,00% vs. ayer (US$ 99,00)",
+      "price": 97.77,
+      "at": "2026-10-19T00:01:11.365Z",
+      "trend": "down",
+      "note": "-1,24% vs. ayer (US$ 99,00)",
       "label": "Petróleo WTI"
     }
   },
@@ -31,7 +31,7 @@
     "petroleo": {
       "2026-10-16": 101.84,
       "2026-10-17": 99,
-      "2026-10-18": 99
+      "2026-10-18": 97.77
     }
   },
   "errors": []
