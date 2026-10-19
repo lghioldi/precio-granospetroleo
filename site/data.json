@@ -1,29 +1,29 @@
 {
-  "updatedAt": "2026-10-19T10:11:03.106Z",
+  "updatedAt": "2026-10-19T14:25:29.265Z",
   "items": {
     "soja": {
-      "price": 371.11,
-      "at": "2026-10-18T21:45:52.171Z",
-      "trend": "up",
-      "note": "Pizarra del 15/10/2026 · +0,54% vs. rueda anterior"
+      "price": 365.81,
+      "at": "2026-10-19T14:25:29.247Z",
+      "trend": "down",
+      "note": "Pizarra del 16/10/2026 · -1,43% vs. rueda anterior"
     },
     "maiz": {
-      "price": 189.86,
-      "at": "2026-10-18T21:45:52.171Z",
-      "trend": "up",
-      "note": "Pizarra del 15/10/2026 · +0,17% vs. rueda anterior"
+      "price": 188.87,
+      "at": "2026-10-19T14:25:29.247Z",
+      "trend": "down",
+      "note": "Pizarra del 16/10/2026 · -0,52% vs. rueda anterior"
     },
     "trigo": {
-      "price": 232.24,
-      "at": "2026-10-18T21:45:52.171Z",
+      "price": 233.93,
+      "at": "2026-10-19T14:25:29.247Z",
       "trend": "up",
-      "note": "Pizarra del 15/10/2026 · +1,29% vs. rueda anterior"
+      "note": "Pizarra del 16/10/2026 · +0,73% vs. rueda anterior"
     },
     "petroleo": {
-      "price": 98.25,
-      "at": "2026-10-19T10:06:06.537Z",
-      "trend": "up",
-      "note": "+0,49% vs. ayer (US$ 97,77)",
+      "price": 97.72,
+      "at": "2026-10-19T14:21:11.399Z",
+      "trend": "down",
+      "note": "-0,05% vs. ayer (US$ 97,77)",
       "label": "Petróleo WTI"
     }
   },
@@ -32,7 +32,7 @@
       "2026-10-16": 101.84,
       "2026-10-17": 99,
       "2026-10-18": 97.77,
-      "2026-10-19": 98.25
+      "2026-10-19": 97.72
     }
   },
   "errors": []
