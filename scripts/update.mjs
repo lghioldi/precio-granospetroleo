@@ -1,30 +1,44 @@
-// Consulta las APIs de granos y petróleo y guarda el resultado en site/data.json.
-// Lo ejecuta GitHub Actions cada 30 minutos (ver .github/workflows/update.yml).
+// Consulta granos y petróleo y guarda el resultado en site/data.json.
+// Lo ejecuta GitHub Actions (ver .github/workflows/update.yml).
+//
+// GRANOS: fuente principal = pizarra de la Cámara Arbitral de Cereales (BCR Rosario).
+//         Respaldo = API de granos.ar (si la página de la BCR no responde o cambia).
+// PETRÓLEO: OilPriceAPI.
 //
 // Colores de las tarjetas (comparación diaria):
-//  - Granos: variación contra la rueda anterior que informa la propia API.
+//  - Granos: precio de la rueda actual contra la rueda anterior guardada en el historial.
+//            Si todavía no hay historial, usa la variación que informa granos.ar (si es de la misma rueda).
 //  - Petróleo: precio actual contra el último precio guardado del día anterior.
 
 import { readFile, writeFile } from 'node:fs/promises';
 
 /* ========================= CONFIGURACIÓN ========================= */
 const CONFIG = {
-  grainsUrl: 'https://granosar.lfcaucino.workers.dev/api/v1/pizarra',
+  bcrUrl: 'https://www.cac.bcr.com.ar/es/precios-de-pizarra',
+  grainsApiUrl: 'https://granosar.lfcaucino.workers.dev/api/v1/pizarra',   // respaldo
   oilCode: 'WTI_USD',                      // o BRENT_CRUDE_USD
   oilApiKey: process.env.OIL_API_KEY ?? '', // se carga como Secret en GitHub
   file: 'site/data.json',
   timeZone: 'America/Argentina/Buenos_Aires',
-  historyDays: 7,                           // días de historial que se conservan
+  historyDays: 10,                          // fechas de historial que se conservan
 };
 /* ================================================================= */
 
 const OIL_URL = 'https://api.oilpriceapi.com/v1/prices/latest';
+const UA = 'tablero-mercados (GitHub Actions)';
+const GRAINS = [
+  { id: 'soja',  re: 'Soja' },
+  { id: 'maiz',  re: 'Ma[ií]z' },
+  { id: 'trigo', re: 'Trigo' },
+];
 const num = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const today = () => new Date().toLocaleDateString('en-CA', { timeZone: CONFIG.timeZone }); // AAAA-MM-DD
 const withSign = (v) => `${v > 0 ? '+' : ''}${num.format(v)}%`;
 const trendFromPct = (v) =>
   typeof v !== 'number' || Math.abs(v) < 0.005 ? 'flat' : v > 0 ? 'up' : 'down';
+const dmy = (iso) => iso.split('-').reverse().join('/');
+const parseAr = (s) => Number(s.replace(/\./g, '').replace(',', '.'));   // "233,98" -> 233.98
 
 async function getJson(url, options, name) {
   const res = await fetch(url, options);
@@ -32,24 +46,79 @@ async function getJson(url, options, name) {
   return res.json();
 }
 
-async function fetchGrains() {
-  const json = await getJson(CONFIG.grainsUrl, {}, 'API de granos');
-  const data = json.data ?? json;
-  const at = json.meta?.generado_en ?? new Date().toISOString();
-  const rueda = data.fecha ? data.fecha.split('-').reverse().join('/') : null;
+/* ---------- Granos: pizarra de la BCR (lee el texto de la página) ---------- */
+function htmlToText(html) {
+  const named = { nbsp: ' ', amp: '&', aacute: 'á', eacute: 'é', iacute: 'í', oacute: 'ó', uacute: 'ú', ntilde: 'ñ' };
+  return html
+    .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, n) => named[n.toLowerCase()] ?? m)
+    .replace(/\s+/g, ' ');
+}
 
-  return ['soja', 'maiz', 'trigo'].flatMap((id) => {
+async function fetchBcr() {
+  const res = await fetch(CONFIG.bcrUrl, { headers: { 'User-Agent': UA, Accept: 'text/html' } });
+  if (!res.ok) throw new Error(`BCR: respondió HTTP ${res.status}`);
+  const text = htmlToText(await res.text());
+
+  const d = text.match(/Precios\s+Pizarra\s+del\s+d[ií]a\s+(\d{2})\/(\d{2})\/(\d{4})/i);
+  if (!d) throw new Error('BCR: no se encontró la fecha de la pizarra (la página pudo haber cambiado)');
+  const fecha = `${d[3]}-${d[2]}-${d[1]}`;
+
+  const grains = {};
+  for (const { id, re } of GRAINS) {
+    // Ej.: "Trigo $354.600,00 US$ 233,98"  (puede traer "S/C" y "(E)" en otros granos)
+    const m = text.match(new RegExp(`${re}\\s+(?:S/C\\s*)?(?:\\(E\\)\\s*)?\\$\\s*[\\d.]+,\\d+\\s+US\\$\\s*(?:\\(E\\)\\s*)?([\\d.]+,\\d+)`, 'i'));
+    if (!m) throw new Error(`BCR: no se encontró el precio de ${id} (la página pudo haber cambiado)`);
+    grains[id] = parseAr(m[1]);
+  }
+  return { fecha, grains, source: 'BCR' };
+}
+
+/* ---------- Granos: API de granos.ar (respaldo) ---------- */
+async function fetchGrainsApi() {
+  const json = await getJson(CONFIG.grainsApiUrl, {}, 'API de granos');
+  const data = json.data ?? json;
+  const grains = {}, pct = {};
+  for (const { id } of GRAINS) {
     const g = data.granos?.[id];
-    if (!g || typeof g.usd_tn !== 'number') return [];
-    const v = g.variacion_pct_vs_rueda_anterior;
-    const note = [
-      rueda && `Pizarra del ${rueda}`,
-      typeof v === 'number' && `${withSign(v)} vs. rueda anterior`,
-    ].filter(Boolean).join(' · ');
-    return [{ id, price: g.usd_tn, at, note, trend: trendFromPct(v) }];
+    if (!g || typeof g.usd_tn !== 'number') continue;
+    grains[id] = g.usd_tn;
+    pct[id] = g.variacion_pct_vs_rueda_anterior;
+  }
+  if (!data.fecha || !Object.keys(grains).length) throw new Error('API de granos: respuesta sin cotizaciones');
+  return { fecha: data.fecha, grains, pct, source: 'granos.ar' };
+}
+
+async function getGrains(history) {
+  const [b, a] = await Promise.allSettled([fetchBcr(), fetchGrainsApi()]);
+  if (b.status === 'rejected') console.log(`::warning::${b.reason.message}. Se usa granos.ar como respaldo.`);
+  if (b.status === 'rejected' && a.status === 'rejected') {
+    throw new Error(`Granos: ${b.reason.message}; ${a.reason.message}`);
+  }
+  const src = b.status === 'fulfilled' ? b.value : a.value;
+  const api = a.status === 'fulfilled' ? a.value : null;
+  const at = new Date().toISOString();
+
+  return Object.entries(src.grains).map(([id, price]) => {
+    const hist = history[id] ?? (history[id] = {});
+    const prevDates = Object.keys(hist).filter((f) => f < src.fecha).sort();
+    let pct = null;
+    if (prevDates.length) {
+      const ref = hist[prevDates.at(-1)];
+      pct = ((price - ref) / ref) * 100;
+    } else if (api && api.fecha === src.fecha && typeof api.pct?.[id] === 'number') {
+      pct = api.pct[id];            // aún sin historial propio: usa la variación de granos.ar
+    }
+    hist[src.fecha] = price;
+    const cmp = pct == null ? 'sin rueda anterior para comparar' : `${withSign(pct)} vs. rueda anterior`;
+    return { id, price, at, trend: trendFromPct(pct), note: `Pizarra del ${dmy(src.fecha)} (${src.source}) · ${cmp}` };
   });
 }
 
+/* ---------- Petróleo ---------- */
 async function fetchOil(history) {
   if (!CONFIG.oilApiKey) throw new Error('Falta el Secret OIL_API_KEY');
   const json = await getJson(
@@ -60,10 +129,10 @@ async function fetchOil(history) {
   const price = Number(json.data?.price);
   if (!Number.isFinite(price)) throw new Error('OilPriceAPI no devolvió un precio válido');
 
-  // Referencia: último precio guardado de un día anterior a hoy
   const days = Object.keys(history).filter((d) => d < today()).sort();
   const ref = days.length ? history[days.at(-1)] : null;
   const pct = ref ? ((price - ref) / ref) * 100 : null;
+  history[today()] = price;          // último precio visto hoy
 
   return [{
     id: 'petroleo',
@@ -75,15 +144,21 @@ async function fetchOil(history) {
   }];
 }
 
+const prune = (obj) =>
+  Object.fromEntries(Object.keys(obj).sort().slice(-CONFIG.historyDays).map((k) => [k, obj[k]]));
+
 async function main() {
   let old = { items: {} };
   try { old = JSON.parse(await readFile(CONFIG.file, 'utf8')); } catch { /* primera vez */ }
 
   const items = { ...old.items };
-  const history = { petroleo: { ...(old.history?.petroleo ?? {}) } };
+  const history = {
+    petroleo: { ...(old.history?.petroleo ?? {}) },
+    granos: Object.fromEntries(Object.entries(old.history?.granos ?? {}).map(([k, v]) => [k, { ...v }])),
+  };
   const errors = [];
 
-  const [grains, oil] = await Promise.allSettled([fetchGrains(), fetchOil(history.petroleo)]);
+  const [grains, oil] = await Promise.allSettled([getGrains(history.granos), fetchOil(history.petroleo)]);
   for (const r of [grains, oil]) {
     if (r.status === 'rejected') {
       errors.push(r.reason.message);
@@ -92,7 +167,6 @@ async function main() {
     }
     for (const { id, price, at, note, label, trend } of r.value) {
       items[id] = { price, at, trend, note, ...(label && { label }) };
-      if (id === 'petroleo') history.petroleo[today()] = price;   // último precio visto hoy
     }
   }
 
@@ -102,9 +176,8 @@ async function main() {
     return;
   }
 
-  // Conservar solo los últimos días del historial
-  const keep = Object.keys(history.petroleo).sort().slice(-CONFIG.historyDays);
-  history.petroleo = Object.fromEntries(keep.map((d) => [d, history.petroleo[d]]));
+  history.petroleo = prune(history.petroleo);
+  for (const id of Object.keys(history.granos)) history.granos[id] = prune(history.granos[id]);
 
   await writeFile(CONFIG.file, JSON.stringify({ updatedAt: new Date().toISOString(), items, history, errors }, null, 2) + '\n');
   console.log('Datos guardados en', CONFIG.file);
