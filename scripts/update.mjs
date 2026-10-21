@@ -25,6 +25,9 @@ const CONFIG = {
 /* ================================================================= */
 
 const OIL_URL = 'https://api.oilpriceapi.com/v1/prices/latest';
+// Rueda inicial de referencia (valores reales del 19/10/2026: la BCR y granos.ar coinciden).
+// Permite comparar desde la primera rueda nueva sin esperar a juntar historial propio.
+const SEED = { '2026-10-19': { soja: 364.24, maiz: 185.95, trigo: 233.98 } };
 const UA = 'tablero-mercados (GitHub Actions)';
 const GRAINS = [
   { id: 'soja',  re: 'Soja' },
@@ -104,6 +107,7 @@ async function getGrains(history) {
 
   return Object.entries(src.grains).map(([id, price]) => {
     const hist = history[id] ?? (history[id] = {});
+    for (const [f, vals] of Object.entries(SEED)) if (vals[id] != null && hist[f] == null) hist[f] = vals[id];
     const prevDates = Object.keys(hist).filter((f) => f < src.fecha).sort();
     let pct = null;
     if (prevDates.length) {
