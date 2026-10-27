@@ -1,29 +1,29 @@
 {
-  "updatedAt": "2026-10-27T13:57:21.228Z",
+  "updatedAt": "2026-10-27T19:12:55.263Z",
   "items": {
     "soja": {
       "price": 362.27,
-      "at": "2026-10-27T13:57:21.227Z",
+      "at": "2026-10-27T19:12:55.262Z",
       "trend": "down",
       "note": "Pizarra del 26/10/2026 (BCR) · -0,75% vs. rueda anterior"
     },
     "maiz": {
       "price": 183.42,
-      "at": "2026-10-27T13:57:21.227Z",
+      "at": "2026-10-27T19:12:55.262Z",
       "trend": "up",
       "note": "Pizarra del 26/10/2026 (BCR) · +0,23% vs. rueda anterior"
     },
     "trigo": {
       "price": 212.79,
-      "at": "2026-10-27T13:57:21.227Z",
+      "at": "2026-10-27T19:12:55.262Z",
       "trend": "down",
       "note": "Pizarra del 26/10/2026 (BCR) · -1,03% vs. rueda anterior"
     },
     "petroleo": {
-      "price": 100.88,
-      "at": "2026-10-27T13:56:14.724Z",
+      "price": 99.93,
+      "at": "2026-10-27T19:11:41.663Z",
       "trend": "down",
-      "note": "-0,03% vs. ayer (US$ 100,91)",
+      "note": "-0,97% vs. ayer (US$ 100,91)",
       "label": "Petróleo WTI"
     }
   },
@@ -38,7 +38,7 @@
       "2026-10-24": 103.2,
       "2026-10-25": 101.77,
       "2026-10-26": 100.91,
-      "2026-10-27": 100.88
+      "2026-10-27": 99.93
     },
     "granos": {
       "soja": {
