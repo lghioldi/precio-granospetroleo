@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-12T00:01:42.604Z",
+  "updatedAt": "2026-11-12T06:31:45.887Z",
   "items": {
     "soja": {
       "price": 351.79,
@@ -21,15 +21,14 @@
     },
     "petroleo": {
       "price": 86.25,
-      "at": "2026-11-11T23:51:14.317Z",
-      "trend": "down",
-      "note": "-0,54% vs. ayer (US$ 86,72)",
+      "at": "2026-11-12T06:31:11.545Z",
+      "trend": "flat",
+      "note": "0,00% vs. ayer (US$ 86,25)",
       "label": "Petróleo WTI"
     }
   },
   "history": {
     "petroleo": {
-      "2026-11-02": 96.98,
       "2026-11-03": 96.43,
       "2026-11-04": 87.44,
       "2026-11-05": 91.45,
@@ -38,7 +37,8 @@
       "2026-11-08": 90.72,
       "2026-11-09": 86.17,
       "2026-11-10": 86.72,
-      "2026-11-11": 86.25
+      "2026-11-11": 86.25,
+      "2026-11-12": 86.25
     },
     "granos": {
       "soja": {
@@ -79,5 +79,7 @@
       }
     }
   },
-  "errors": []
+  "errors": [
+    "Granos: BCR: no se encontró el precio de soja (la página pudo haber cambiado); API de granos: respuesta sin cotizaciones"
+  ]
 }
