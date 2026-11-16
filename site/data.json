@@ -1,21 +1,21 @@
 {
-  "updatedAt": "2026-11-16T23:01:31.989Z",
+  "updatedAt": "2026-11-16T23:31:03.962Z",
   "items": {
     "soja": {
       "price": 355.16,
-      "at": "2026-11-16T23:01:31.988Z",
+      "at": "2026-11-16T23:31:03.957Z",
       "trend": "up",
       "note": "Pizarra del 13/11/2026 (BCR) · +1,06% vs. rueda anterior"
     },
     "maiz": {
       "price": 175.5,
-      "at": "2026-11-16T23:01:31.988Z",
+      "at": "2026-11-16T23:31:03.957Z",
       "trend": "down",
       "note": "Pizarra del 13/11/2026 (BCR) · -2,23% vs. rueda anterior"
     },
     "trigo": {
       "price": 185.08,
-      "at": "2026-11-16T23:01:31.988Z",
+      "at": "2026-11-16T23:31:03.957Z",
       "trend": "down",
       "note": "Pizarra del 13/11/2026 (BCR) · -1,56% vs. rueda anterior"
     },
@@ -79,5 +79,7 @@
       }
     }
   },
-  "errors": []
+  "errors": [
+    "OilPriceAPI: respondió HTTP 402"
+  ]
 }
