@@ -21,6 +21,7 @@ const CONFIG = {
   file: 'site/data.json',
   timeZone: 'America/Argentina/Buenos_Aires',
   historyDays: 10,                          // fechas de historial que se conservan
+  oilMinMinutes: 120,                       // mínimo entre consultas exitosas al petróleo (cuida la cuota de la API)
 };
 /* ================================================================= */
 
@@ -162,7 +163,18 @@ async function main() {
   };
   const errors = [];
 
-  const [grains, oil] = await Promise.allSettled([getGrains(history.granos), fetchOil(history.petroleo)]);
+  // El plan gratuito de OilPriceAPI tiene pocas consultas: se consulta como mucho cada oilMinMinutes.
+  // Si la consulta falla, se reintenta en la próxima corrida.
+  const oilDue = !old.items?.petroleo || !old.oilCheckedAt ||
+    Date.now() - Date.parse(old.oilCheckedAt) >= CONFIG.oilMinMinutes * 60000;
+  if (!oilDue) console.log('Petróleo: se omite esta consulta para cuidar la cuota de la API.');
+
+  const [grains, oil] = await Promise.allSettled([
+    getGrains(history.granos),
+    oilDue ? fetchOil(history.petroleo) : Promise.resolve([]),
+  ]);
+  let oilCheckedAt = old.oilCheckedAt ?? null;
+  if (oilDue && oil.status === 'fulfilled') oilCheckedAt = new Date().toISOString();
   for (const r of [grains, oil]) {
     if (r.status === 'rejected') {
       errors.push(r.reason.message);
@@ -183,7 +195,7 @@ async function main() {
   history.petroleo = prune(history.petroleo);
   for (const id of Object.keys(history.granos)) history.granos[id] = prune(history.granos[id]);
 
-  await writeFile(CONFIG.file, JSON.stringify({ updatedAt: new Date().toISOString(), items, history, errors }, null, 2) + '\n');
+  await writeFile(CONFIG.file, JSON.stringify({ updatedAt: new Date().toISOString(), oilCheckedAt, items, history, errors }, null, 2) + '\n');
   console.log('Datos guardados en', CONFIG.file);
 }
 
