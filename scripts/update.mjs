@@ -21,7 +21,7 @@ const CONFIG = {
   file: 'site/data.json',
   timeZone: 'America/Argentina/Buenos_Aires',
   historyDays: 10,                          // fechas de historial que se conservan
-  oilMinMinutes: 120,                       // mínimo entre consultas exitosas al petróleo (cuida la cuota de la API)
+  oilMinMinutes: 60,                       // mínimo entre consultas exitosas al petróleo (cuida la cuota de la API)
 };
 /* ================================================================= */
 
