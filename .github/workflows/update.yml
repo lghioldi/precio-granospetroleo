@@ -2,7 +2,7 @@ name: Actualizar mercados
 
 on:
   schedule:
-    - cron: '4,19,34,49 * * * *'   # cada 15 minutos
+    - cron: '17 * * * *'   # cada 15 minutos
   workflow_dispatch:          # permite correrlo a mano desde la pestaña Actions
 
 permissions:
@@ -44,11 +44,14 @@ jobs:
             git push
           fi
 
-      - uses: actions/configure-pages@v6
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: site
-
       - id: deploy
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+
+      - name: Esperar antes de reintentar
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 45
+
+      - id: deploy_retry
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v5
