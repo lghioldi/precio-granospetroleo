@@ -20,7 +20,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
-       steps:
+    steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v7
