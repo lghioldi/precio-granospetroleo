@@ -1,22 +1,22 @@
 {
-  "updatedAt": "2026-11-27T01:01:17.841Z",
+  "updatedAt": "2026-11-27T01:31:07.335Z",
   "oilCheckedAt": "2026-11-27T00:31:09.413Z",
   "items": {
     "soja": {
       "price": 360.31,
-      "at": "2026-11-27T01:01:17.829Z",
+      "at": "2026-11-27T01:31:07.331Z",
       "trend": "up",
       "note": "Pizarra del 25/11/2026 (BCR) · +0,13% vs. rueda anterior"
     },
     "maiz": {
       "price": 169.91,
-      "at": "2026-11-27T01:01:17.829Z",
+      "at": "2026-11-27T01:31:07.331Z",
       "trend": "down",
       "note": "Pizarra del 25/11/2026 (BCR) · -1,22% vs. rueda anterior"
     },
     "trigo": {
       "price": 189.97,
-      "at": "2026-11-27T01:01:17.829Z",
+      "at": "2026-11-27T01:31:07.331Z",
       "trend": "up",
       "note": "Pizarra del 25/11/2026 (BCR) · +2,69% vs. rueda anterior"
     },
